@@ -1,7 +1,9 @@
 console.log("JS file loaded...");
 var c = document.getElementById("myCanvas");
 var ctx = c.getContext("2d");
-
+var socket = io().connect('http://localhost');
+var counter = 0;
+var chatText = document.getElementById('counter');
 
 class Ent {
   constructor(x,y) {
@@ -33,6 +35,17 @@ for(let i=0;i<10;i++){
   entList.push(new Ent(Math.random()*400,Math.random()*300));
 }
 
+socket.on('updateVal',(data)=>{
+  //console.log("UpdateVal Event");
+  //chatText.innerHTML = "<p>"+data+"</p>";
+  counter = +data;
+  ctx.beginPath();
+  ctx.font = "30px Georgia";
+  ctx.fillStyle = "#00F";
+  ctx.fillText(""+counter, 10, 30);
+  ctx.closePath();
+});
+
 var mainLoop= function(){
 
   ctx.fillStyle = "rgba(255,255,255,0)";
@@ -41,6 +54,7 @@ var mainLoop= function(){
     entList[i].update();
     entList[i].draw();
   }
+  socket.emit('update');
 }
 
 setInterval(mainLoop,10);

@@ -1,20 +1,11 @@
 var express = require("express");
 var app = express();
-//var session = require("express-session");
-//var bodyParser = require('body-parser');
 var port = process.env.PORT || 8080;
 var log = [];
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
 
-// app.use(bodyParser.json())
-// app.use(bodyParser.urlencoded({
-//     extended: true
-// }));
-
-// app.use(session({
-//     secret: "testSecret",//process.env.SES_SECRET,
-//     resave: false,
-//     saveUninitialized: true
-// }));
+let counter = 0;
 
 app.use(function logIt(req, res, next) {
   //console.log("New incoming request!");
@@ -37,6 +28,26 @@ app.get("/log",(req,res)=>{
   res.json(log);
 })
 
- app.listen(port, ()=>{
-   console.log("App active on port: "+port);
+ // app.listen(port, ()=>{
+ //   console.log("App active on port: "+port);
+ // });
+
+ http.listen(port, function(){
+   console.log('listening on *:'+port);
  });
+
+io.sockets.on('connection',(socket)=>{
+
+  console.log("New socket connected");
+
+  socket.on('update',()=>{
+    counter++;
+    socket.emit("updateVal",counter);
+    //console.log("Update Event");
+  });
+
+  socket.on('disconnect',()=>{
+    console.log("Socket Disconnected");
+  });
+
+});
